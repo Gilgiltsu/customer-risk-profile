@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import os
-import glob
 import joblib
 import mlflow
 import mlflow.sklearn
@@ -9,8 +8,6 @@ from datetime import datetime
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score, accuracy_score, recall_score, f1_score
 from lightgbm import LGBMClassifier
-import zipfile
-
 
 def load_csv_from_dropbox(shared_link):
     """Charge un fichier CSV directement depuis un lien partagé Dropbox."""
@@ -21,7 +18,6 @@ def load_csv_from_dropbox(shared_link):
     df = pd.read_csv(direct_link)
     return df
 
-
 def train_model(X, y, best_params):
     """Entraîne le modèle avec les meilleurs hyperparamètres."""
     model = LGBMClassifier(**best_params)
@@ -30,29 +26,14 @@ def train_model(X, y, best_params):
 
 def save_model(model, filename):
     """Sauvegarde le modèle en tant que fichier .pkl."""
-    # Supprimer tous les fichiers .zip présents dans le répertoire
-    for zip_file in glob.glob("*.zip"):
-        os.remove(zip_file)
-        print(f"Fichier {zip_file} supprimé.")
-
     joblib.dump(model, filename)
     print(f"Modèle sauvegardé en tant que {filename}")
 
-def zip_model(pkl_filename, zip_filename):
-    """Compresse le fichier .pkl dans un fichier .zip."""
-    with zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        zipf.write(pkl_filename, os.path.basename(pkl_filename))
-    print(f"Modèle compressé en tant que {zip_filename}")
-
-    for pkl_file in glob.glob("*.pkl"):
-        os.remove(pkl_file)
-        print(f"Fichier {pkl_file} supprimé.")
-
-def unzip_model(zip_filename, extract_to='.'):
-    """Décompresse le fichier .zip et extrait le fichier .pkl."""
-    with zipfile.ZipFile(zip_filename, 'r') as zipf:
-        zipf.extractall(extract_to)
-    print(f"Modèle décompressé à partir de {zip_filename}")
+def load_model(filename):
+    """Charge le modèle depuis un fichier .pkl."""
+    model = joblib.load(filename)
+    print(f"Modèle chargé depuis {filename}")
+    return model
 
 def log_model_to_mlflow(model, run_name, X_test, y_test, signature=None):
     """Enregistre le modèle dans MLflow avec les métriques et caractéristiques."""
@@ -121,13 +102,9 @@ def main(shared_link):
     # Générer un nom de fichier avec version basée sur la date et l'heure
     version = datetime.now().strftime("%Y%m%d_%H%M%S")
     model_filename = f"model_{version}.pkl"
-    zip_filename = f"model_{version}.zip"
 
     # Sauvegarder le modèle
     save_model(model, model_filename)
-
-    # Compresser le modèle
-    zip_model(model_filename, zip_filename)
 
     # Enregistrer le modèle dans MLflow
     input_example = X_train.sample(1)
