@@ -31,20 +31,18 @@ jobs:
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
       run: |
-        # Ajouter la clé SSH à l'agent SSH
+        mkdir -p ~/.ssh
+
         echo "${{ secrets.HEROKU_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan heroku.com >> ~/.ssh/known_hosts
 
-        # Configurer Git pour utiliser SSH
         git remote remove heroku || true
         git remote add heroku git@heroku.com:customer-risk-profile.git
 
-        # Configurer l'identité Git
         git config --global user.name "Gilgiltsu"
         git config user.email "telli.gilles@gmail.com"
 
-        # Ajouter, commiter et pousser les changements
         git add .
         git commit -m "Deploy from GitHub Actions"
         git push heroku main
