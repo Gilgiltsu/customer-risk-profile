@@ -67,6 +67,10 @@ jobs:
         # Vérification du remote
         git remote -v | grep heroku || { echo "Heroku remote not set correctly"; exit 1; }
 
+        # Synchroniser avec la version distante pour éviter l'erreur "Updates were rejected"
+        git fetch heroku main
+        git reset --soft heroku/main
+
         # Vérification et correction d'un clone "shallow"
         git fetch --all --unshallow || echo "Repo already unshallow"
 
@@ -86,6 +90,9 @@ jobs:
         git commit -m "Deploy from GitHub Actions" || echo "No changes to commit"
 
         echo "Pushing to Heroku..."
-        git push heroku main || { echo "Deployment failed"; exit 1; }
+        git push heroku main || { 
+          echo "Push failed. Forcing update...";
+          git push --force heroku main || { echo "Deployment failed"; exit 1; }
+        }
 
         echo "Deployment successful!"
