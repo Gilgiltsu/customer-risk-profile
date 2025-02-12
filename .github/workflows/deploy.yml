@@ -10,8 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout code (Full Clone)
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0  # Clone complet pour éviter l'erreur "shallow clone"
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -42,7 +44,7 @@ jobs:
         echo "Authentification Heroku..."
         echo $HEROKU_API_KEY | heroku auth:token
 
-        # Configurer l'authentification Git avec Heroku via .netrc
+        # Configuration de l'authentification Git avec Heroku via .netrc
         echo "machine git.heroku.com" > ~/.netrc
         echo "  login api_key" >> ~/.netrc
         echo "  password $HEROKU_API_KEY" >> ~/.netrc
@@ -56,8 +58,14 @@ jobs:
         git remote remove heroku || true
         git remote add heroku https://git.heroku.com/$HEROKU_APP_NAME.git
 
-        # Vérification que le remote est bien défini
+        # Vérification du remote
         git remote -v | grep heroku || { echo "Heroku remote not set correctly"; exit 1; }
+
+        # Vérification et correction d'un clone "shallow"
+        git fetch --all --unshallow || echo "Repo already unshallow"
+
+        # Vérification que le HEAD est bien valide
+        git rev-parse HEAD || { echo "Invalid Git HEAD"; exit 1; }
 
         # Configurer Git
         git config --global user.name "Gilgiltsu"
