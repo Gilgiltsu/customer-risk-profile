@@ -24,11 +24,8 @@ customer-risk-profile/
 │   ├── requirements.txt              # Dépendances Python
 │   └── test_api.py                  # Tests unitaires pour l'API
 │
-├── mlruns/                          # Répertoire pour les résultats MLflow
-│
 ├── src/
-│   ├── df_cleaned.csv               # Jeu de données nettoyé
-│   ├── model_20250211_191632.pkl    # Modèle sérialisé
+│   ├── model_20250211_191632.zip    # Modèle sérialisé, zipper car heroku ne gere pas bien les lfs
 │   └── train.py                     # Script pour entraîner et sauvegarder le modèle
 │
 ├── README.md                        # Documentation du projet
@@ -49,8 +46,7 @@ customer-risk-profile/
 - **`mlruns/`** : Répertoire où MLflow stocke les résultats des expériences et des modèles.
 
 - **`src/`** : Contient les fichiers de données et les scripts pour l'entraînement du modèle :
-  - **`df_cleaned.csv`** : Jeu de données nettoyé utilisé pour entraîner le modèle.
-  - **`model_20250211_191632.pkl`** : Modèle entraîné et sérialisé.
+  - **`model_20250211_191632.zip`** : Modèle entraîné et sérialisé.
   - **`train.py`** : Script pour entraîner le modèle sur les données et le sauvegarder.
 
 - **`runtime.txt`** : Fichier spécifiant la version de Python à utiliser.
@@ -60,7 +56,7 @@ customer-risk-profile/
 ## Instructions
 
 1. **Cloner le dépôt** : Utilisez `git clone` pour cloner ce dépôt sur votre machine locale.
-2. **Configurer l'environnement** : Installez les dépendances avec `pip install -r requirements.txt`.
+2. **Configurer l'environnement** : Installez les dépendances avec `pip install -r api/requirements.txt`.
 3. **Exécuter les tests** : Lancez les tests unitaires avec `pytest`.
 4. **Déployer sur Heroku** : Poussez les modifications vers GitHub pour déclencher le déploiement automatique sur Heroku.
 
