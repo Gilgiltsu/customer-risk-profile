@@ -32,6 +32,8 @@ jobs:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
       run: |
         git remote add heroku https://git.heroku.com/customer-risk-profile.git
+        git config --global user.name "Gilgiltsu"
+        git config user.email "telli.gilles@gmail.com"
         git add .
         git commit -m "Deploy from GitHub Actions"
         git push heroku main
