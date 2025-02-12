@@ -29,9 +29,11 @@ def load_model():
         pkl_file_path = os.path.join('extracted_model', pkl_file[0])
 
         # Charger le modèle
+        model = joblib.load(pkl_file_path)
         print(f"✅ Chargement du modèle depuis {pkl_file_path}")
-        return joblib.load(pkl_file_path)
-    
+
+        return model
+
     except Exception as e:
         print(f"❌ Erreur lors du chargement du modèle : {e}")
         return None
@@ -43,7 +45,7 @@ model = load_model()
 def home():
     """Message d'accueil sur la page d'accueil de l'API."""
     return jsonify({
-        "message": "Bienvenue sur l'API Customer Risk Profile ! 🚀",
+        "message": "Bienvenue sur l'API Customer Risk Profile ! ;)",
         "status": "API opérationnelle",
         "routes": ["/predict", "/health", "/routes"]
     })
@@ -57,6 +59,8 @@ def predict():
     try:
         data = request.json  # Attend un JSON avec les caractéristiques
         df = pd.DataFrame(data)
+
+        # Faire une prédiction avec le modèle
         prediction = model.predict(df)
         return jsonify({'prediction': prediction.tolist()})
     except Exception as e:
