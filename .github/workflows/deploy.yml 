@@ -1,0 +1,37 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Déclenche le déploiement sur les poussées vers la branche principale
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10.8'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r api/requirements.txt
+
+    - name: Run tests
+      run: |
+        pytest api/test_api.py  # Exécute les tests unitaires avec Pytest
+
+    - name: Deploy to Heroku
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: |
+        git remote add heroku https://git.heroku.com/customer-risk-profile.git
+        git add .
+        git commit -m "Deploy from GitHub Actions"
+        git push heroku main
