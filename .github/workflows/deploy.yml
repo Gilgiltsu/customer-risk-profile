@@ -35,28 +35,42 @@ jobs:
         # Installer la CLI Heroku
         curl https://cli-assets.heroku.com/install.sh | sh
         
-        # Configuration de l'authentification Heroku via .netrc
-        echo "machine api.heroku.com" > ~/.netrc
-        echo "  login $HEROKU_API_KEY" >> ~/.netrc
-        echo "machine git.heroku.com" >> ~/.netrc
-        echo "  login $HEROKU_API_KEY" >> ~/.netrc
-        chmod 600 ~/.netrc  # Sécuriser le fichier
-        
+        # Vérifier l'installation d'Heroku CLI
+        heroku --version || { echo "Heroku CLI installation failed"; exit 1; }
+
         # Authentification Heroku
         echo "Authentification Heroku..."
-        heroku auth:token
+        echo $HEROKU_API_KEY | heroku auth:token
 
-        # Ajout du remote Heroku avec HTTPS 
+        # Configurer l'authentification Git avec Heroku via .netrc
+        echo "machine git.heroku.com" > ~/.netrc
+        echo "  login api_key" >> ~/.netrc
+        echo "  password $HEROKU_API_KEY" >> ~/.netrc
+        chmod 600 ~/.netrc
+
+        # Vérification que l'application existe sur Heroku
+        heroku apps:info -a $HEROKU_APP_NAME || { echo "Heroku app $HEROKU_APP_NAME not found"; exit 1; }
+
+        # Ajout du remote Heroku
+        echo "Ajout du remote Heroku..."
         git remote remove heroku || true
         git remote add heroku https://git.heroku.com/$HEROKU_APP_NAME.git
 
-        # Déploiement sur Heroku
+        # Vérification que le remote est bien défini
+        git remote -v | grep heroku || { echo "Heroku remote not set correctly"; exit 1; }
+
+        # Configurer Git
         git config --global user.name "Gilgiltsu"
         git config --global user.email "telli.gilles@gmail.com"
 
+        # Empêcher Git de demander un mot de passe
+        export GIT_ASKPASS=/bin/echo
+        export HEROKU_API_KEY=$HEROKU_API_KEY
+
+        # Commit & push vers Heroku
         git add .
         git commit -m "Deploy from GitHub Actions" || echo "No changes to commit"
-        
+
         echo "Pushing to Heroku..."
         git push heroku main || { echo "Deployment failed"; exit 1; }
 
