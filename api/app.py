@@ -65,6 +65,7 @@ def predict():
 
         # Filtrer les colonnes pour ne garder que celles utilisées par le modèle
         if model_features is not None:
+            # Garder uniquement les colonnes présentes dans model_features
             df = df[model_features]
 
         prediction = model.predict(df)
