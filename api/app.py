@@ -29,15 +29,20 @@ def load_model():
         pkl_file_path = os.path.join('extracted_model', pkl_file[0])
 
         # Charger le modèle
+        model = joblib.load(pkl_file_path)
         print(f"✅ Chargement du modèle depuis {pkl_file_path}")
-        return joblib.load(pkl_file_path)
-    
+
+        # Charger les noms des colonnes utilisées par le modèle
+        features = model.feature_names_in_ if hasattr(model, 'feature_names_in_') else None
+
+        return model, features
+
     except Exception as e:
         print(f"❌ Erreur lors du chargement du modèle : {e}")
-        return None
+        return None, None
 
-# Charger le modèle
-model = load_model()
+# Charger le modèle et les noms des colonnes
+model, model_features = load_model()
 
 @app.route('/', methods=['GET'])
 def home():
@@ -57,6 +62,11 @@ def predict():
     try:
         data = request.json  # Attend un JSON avec les caractéristiques
         df = pd.DataFrame(data)
+
+        # Filtrer les colonnes pour ne garder que celles utilisées par le modèle
+        if model_features is not None:
+            df = df[model_features]
+
         prediction = model.predict(df)
         return jsonify({'prediction': prediction.tolist()})
     except Exception as e:
