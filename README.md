@@ -1,10 +1,9 @@
-# Projet de Modèle de Scoring de Prédiction de Faillite
-
+# Projet de Modèle de Scoring de Prédiction de recouvrement
 ## Mission
 
-Votre mission est de construire un modèle de scoring qui prédit la probabilité de faillite d'un client de manière automatique. Ce projet vise à :
+Votre mission est de construire un modèle de scoring qui prédit la probabilité de recouvrement d'un client de manière automatique. Ce projet vise à :
 
-1. **Construire un modèle de scoring** : Développer un modèle capable de prédire la probabilité de faillite d'un client.
+1. **Construire un modèle de scoring** : Développer un modèle capable de prédire la probabilité de remboursement d'un client.
 2. **Analyser les features** : Identifier les caractéristiques (features) qui contribuent le plus au modèle, tant au niveau global qu'au niveau local pour chaque client, afin de fournir une transparence sur le score attribué.
 3. **Mettre en production le modèle** : Déployer le modèle via une API et créer une interface de test pour cette API.
 
@@ -67,9 +66,9 @@ customer-risk-profile/
 
 ## Objectifs
 
-- **Automatisation** : Automatiser la prédiction de la probabilité de faillite des clients.
+- **Automatisation** : Automatiser la prédiction de la probabilité de recouvrement des clients.
 - **Transparence** : Fournir une analyse des features pour une meilleure compréhension des scores attribués.
 - **Déploiement** : Mettre en production le modèle via une API pour une utilisation pratique.
 
-Ce projet vise à fournir une solution complète pour la prédiction de la faillite des clients, avec un accent sur la transparence et l'automatisation.
+Ce projet vise à fournir une solution complète pour la prédiction de la recouvrement des clients, avec un accent sur la transparence et l'automatisation.
 
