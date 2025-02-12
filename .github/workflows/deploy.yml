@@ -30,19 +30,26 @@ jobs:
     - name: Deploy to Heroku
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        HEROKU_APP_NAME: customer-risk-profile
       run: |
-        mkdir -p ~/.ssh
+        # Installer la CLI Heroku
+        curl https://cli-assets.heroku.com/install.sh | sh
+        
+        # Connexion à Heroku avec la clé API
+        echo "Authentification Heroku..."
+        echo $HEROKU_API_KEY | heroku auth:token
 
-        echo "${{ secrets.HEROKU_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan heroku.com >> ~/.ssh/known_hosts
+        # Ajout du remote Heroku
+        heroku git:remote --app $HEROKU_APP_NAME
 
-        git remote remove heroku || true
-        git remote add heroku git@heroku.com:customer-risk-profile.git
-
+        # Déploiement sur Heroku
         git config --global user.name "Gilgiltsu"
         git config user.email "telli.gilles@gmail.com"
 
         git add .
-        git commit -m "Deploy from GitHub Actions"
-        git push heroku main
+        git commit -m "Deploy from GitHub Actions" || echo "No changes to commit"
+        
+        echo "Pushing to Heroku..."
+        git push heroku main || { echo "Deployment failed"; exit 1; }
+
+        echo "Deployment successful!"
