@@ -52,17 +52,21 @@ def predict():
 
         # Faire une prédiction avec le modèle
         y_proba = model.predict_proba(df)[:, 1]
-        optimal_threshold = 0.2
+        optimal_threshold = 0.3
         y_pred_optimal = [1 if prob >= optimal_threshold else 0 for prob in y_proba]
 
-        print("Probabilités et prédictions optimales :")
+        # Construire la réponse JSON
+        response_data = []
         for i, sk_id_curr in enumerate(df['sk_id_curr']):
-            print(f"Client {sk_id_curr}: Probabilité = {y_proba[i]:.4f}, Prédiction = {y_pred_optimal[i]}")
+            response_data.append({
+                "client_id": sk_id_curr,
+                "probability": f"{y_proba[i]:.4f}",
+                "prediction": y_pred_optimal[i]
+            })
 
-        return jsonify({'prediction': y_pred_optimal})
+        return jsonify({'predictions': response_data})
     except Exception as e:
         return jsonify({'error': str(e)}), 400
-
 
 @app.route('/health', methods=['GET'])
 def health_check():
