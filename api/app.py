@@ -28,6 +28,7 @@ def load_model():
 
 # Charger le modèle
 model = load_model()
+optimal_threshold = 0.5 #est renvoyé lors de l'entrainement du model
 
 @app.route('/', methods=['GET'])
 def home():
@@ -39,6 +40,7 @@ def home():
     })
 
 @app.route('/predict', methods=['POST'])
+@app.route('/predict', methods=['POST'])
 def predict():
     """Point de terminaison pour faire des prédictions."""
     if model is None:
@@ -49,10 +51,17 @@ def predict():
         df = pd.DataFrame(data)
 
         # Faire une prédiction avec le modèle
-        prediction = model.predict(df)
-        return jsonify({'prediction': prediction.tolist()})
+        y_proba = model.predict_proba(df)[:, 1]
+        y_pred_optimal = [1 if prob >= optimal_threshold else 0 for prob in y_proba]
+
+        print("Probabilités et prédictions optimales :")
+        for i, sk_id_curr in enumerate(df['sk_id_curr']):
+            print(f"Client {sk_id_curr}: Probabilité = {y_proba[i]:.4f}, Prédiction = {y_pred_optimal[i]}")
+
+        return jsonify({'prediction': y_pred_optimal})
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+
 
 @app.route('/health', methods=['GET'])
 def health_check():
