@@ -52,6 +52,7 @@ def predict():
 
         # Faire une prédiction avec le modèle
         y_proba = model.predict_proba(df)[:, 1]
+        optimal_threshold = 0.2
         y_pred_optimal = [1 if prob >= optimal_threshold else 0 for prob in y_proba]
 
         print("Probabilités et prédictions optimales :")
