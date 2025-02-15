@@ -82,8 +82,17 @@ def shap_value():
 
         explainer = shap.Explainer(model, df)
         shap_values = explainer(df)
+        explainer_tree = shap.TreeExplainer(model)
+        shap_value_tree = explainer_tree(df)
+        response_data = []
+        for i, sk_id_curr in enumerate(df['sk_id_curr']):
+            response_data.append({
+                "client_id": sk_id_curr,
+                "Explainer": f"{shap_values[i]:.4f}",
+                "TreeExplainer": f"{shap_value_tree[i]:.4f}"
+            })
 
-        return shap_values
+        return jsonify({'SHAP': response_data})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
