@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import joblib
 import pandas as pd
 import os
+import shap
 
 # Initialiser l'application Flask
 app = Flask(__name__)
@@ -40,7 +41,6 @@ def home():
     })
 
 @app.route('/predict', methods=['POST'])
-@app.route('/predict', methods=['POST'])
 def predict():
     """Point de terminaison pour faire des prédictions."""
     if model is None:
@@ -67,6 +67,26 @@ def predict():
         return jsonify({'predictions': response_data})
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+    
+def shap_value():
+    """Point de terminaison pour analyse des features."""
+    if model is None:
+        return jsonify({"error": "Modèle non chargé"}), 500
+
+    try:
+        data = request.json  # Attend un JSON avec les caractéristiques
+        df = pd.DataFrame(data)
+
+        if 'target' in df.columns:
+            df = df.drop(columns=['target'])
+
+        explainer = shap.Explainer(model, df)
+        shap_values = explainer(df)
+
+        return shap_values
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/health', methods=['GET'])
 def health_check():
