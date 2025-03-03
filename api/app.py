@@ -67,8 +67,9 @@ def predict():
         return jsonify({'predictions': response_data})
     except Exception as e:
         return jsonify({'error': str(e)}), 400
- 
-@app.route('/shap', methods=['POST'])   
+    
+
+@app.route('/shap', methods=['POST'])
 def shap_value():
     """Point de terminaison pour analyse des features."""
     if model is None:
@@ -83,20 +84,23 @@ def shap_value():
 
         explainer = shap.Explainer(model, df)
         shap_values = explainer(df)
+
         explainer_tree = shap.TreeExplainer(model)
-        shap_value_tree = explainer_tree(df)
+        shap_values_tree = explainer_tree.shap_values(df)
+
         response_data = []
         for i, sk_id_curr in enumerate(df['sk_id_curr']):
             response_data.append({
                 "client_id": sk_id_curr,
-                "Explainer": f"{shap_values[i]:.4f}",
-                "TreeExplainer": f"{shap_value_tree[i]:.4f}"
+                "Explainer": f"{shap_values[i].values:.4f}",
+                "TreeExplainer": f"{shap_values_tree[i]:.4f}"
             })
 
         return jsonify({'SHAP': response_data})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
 
 @app.route('/health', methods=['GET'])
 def health_check():
