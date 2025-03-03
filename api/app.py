@@ -68,7 +68,7 @@ def predict():
     except Exception as e:
         return jsonify({'error': str(e)}), 400
  
-@app.route('/shap', methods=['GET'])   
+@app.route('/shap', methods=['POST'])   
 def shap_value():
     """Point de terminaison pour analyse des features."""
     if model is None:
