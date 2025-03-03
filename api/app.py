@@ -80,20 +80,16 @@ def shap_value():
         df = pd.DataFrame(data)
 
         if 'target' in df.columns:
-            df = df.drop(columns=['target'])
+            df = df.drop(columns=['target']).fillna(0)
 
-        explainer = shap.Explainer(model, df)
-        shap_values = explainer(df)
-
-        explainer_tree = shap.TreeExplainer(model)
-        shap_values_tree = explainer_tree.shap_values(df)
-
+        explainer = shap.TreeExplainer(model)
+        shap_values_instance = explainer(df)
+        
         response_data = []
         for i, sk_id_curr in enumerate(df['sk_id_curr']):
             response_data.append({
                 "client_id": sk_id_curr,
-                "Explainer": f"{shap_values[i].values:.4f}",
-                "TreeExplainer": f"{shap_values_tree[i]:.4f}"
+                "Explainer": shap_values_instance,
             })
 
         return jsonify({'SHAP': response_data})
