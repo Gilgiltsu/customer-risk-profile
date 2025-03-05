@@ -77,7 +77,8 @@ def shap_value():
 
     try:
         data = request.json  # Attend un JSON avec les caractéristiques
-        client_id = data.get('sk_id_curr')
+        df_1 = pd.DataFrame(data)
+        client_id = df_1['sk_id_curr']
 
         if client_id is None:
             return jsonify({"error": "client_id manquant dans les données d'entrée"}), 400
