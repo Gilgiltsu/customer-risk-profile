@@ -82,7 +82,7 @@ def shap_value():
         if client_id is None:
             return jsonify({"error": "client_id manquant dans les données d'entrée"}), 400
 
-        df = pd.read_csv("https://www.dropbox.com/scl/fi/ywb34b2q9dafx9ifkt10q/df_cleaned.csv?rlkey=s3f29j4267ef0h2qv77knula1&st=bfeef662&dl=0")
+        df = pd.read_csv("https://www.dropbox.com/scl/fi/ywb34b2q9dafx9ifkt10q/df_cleaned.csv?rlkey=s3f29j4267ef0h2qv77knula1&st=bfeef662&dl=1")
 
         if 'target' in df.columns:
             df_positives = df[df['target'] == 0].drop(columns=['target']).fillna(0)
