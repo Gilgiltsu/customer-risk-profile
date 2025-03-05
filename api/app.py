@@ -88,9 +88,11 @@ def shap_value():
         response_data = []
         for i, sk_id_curr in enumerate(df['sk_id_curr']):
             shap_values_list = shap_values[i].values.tolist()
+            feature_names = df.columns.tolist()
             response_data.append({
                 "client_id": sk_id_curr,
                 "Explainer": shap_values_list,
+                "feature_names": feature_names,
             })
 
         return jsonify({'SHAP': response_data})
