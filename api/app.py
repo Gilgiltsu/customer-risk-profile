@@ -77,29 +77,53 @@ def shap_value():
 
     try:
         data = request.json  # Attend un JSON avec les caractéristiques
-        df = pd.DataFrame(data)
+        client_id = data.get('sk_id_curr')
+
+        if client_id is None:
+            return jsonify({"error": "client_id manquant dans les données d'entrée"}), 400
+
+        df = pd.read_csv("https://www.dropbox.com/scl/fi/ywb34b2q9dafx9ifkt10q/df_cleaned.csv?rlkey=s3f29j4267ef0h2qv77knula1&st=bfeef662&dl=0")
 
         if 'target' in df.columns:
-            df = df.drop(columns=['target']).fillna(0)
+            df_positives = df[df['target'] == 0].drop(columns=['target']).fillna(0)
+            df_client = df[df['sk_id_curr'] == client_id].drop(columns=['target']).fillna(0)
+        else:
+            df_positives = df.fillna(0)
+            df_client = df[df['sk_id_curr'] == client_id].fillna(0)
+
+        if df_client.empty:
+            return jsonify({"error": "client_id non trouvé dans les données"}), 404
 
         explainer = shap.TreeExplainer(model)
-        shap_values= explainer(df)
-        
+        shap_values_client = explainer(df_client)
+        shap_values_positives = explainer(df_positives)
+
         response_data = []
-        for i, sk_id_curr in enumerate(df['sk_id_curr']):
-            shap_values_list = shap_values[i].values.tolist()
-            feature_names = df.columns.tolist()
+
+        # Ajouter les valeurs SHAP pour le client spécifié
+        shap_values_list_client = shap_values_client[0].values.tolist()
+        feature_names = df_client.columns.tolist()
+        response_data.append({
+            "client_id": client_id,
+            "Explainer": shap_values_list_client,
+            "feature_names": feature_names,
+            "cohort": "client"
+        })
+
+        # Ajouter les valeurs SHAP pour les clients positifs
+        for i, sk_id_curr in enumerate(df_positives['sk_id_curr']):
+            shap_values_list_positives = shap_values_positives[i].values.tolist()
             response_data.append({
                 "client_id": sk_id_curr,
-                "Explainer": shap_values_list,
+                "Explainer": shap_values_list_positives,
                 "feature_names": feature_names,
+                "cohort": "positives"
             })
 
         return jsonify({'SHAP': response_data})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
 
 @app.route('/health', methods=['GET'])
 def health_check():
